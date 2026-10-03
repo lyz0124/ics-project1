@@ -2,19 +2,19 @@ G = 10e-7;
 
 m = [1 1];
 x = [-1 0 0; 1 0 0];
-v=sqrt(2*G*m(1)/2);
+v=sqrt(G/4);
 u = [0 -v 0; 0 v 0];
 n = 2;
 
 clockmax = 1000;
-t = 10000;
+t = 3000;
 dt = t/clockmax;
 
 
 plot3(0,0,0);
 hold on;
 axis equal;
-a = 10;
+a = 3;
 axis([-a,a,-a,a,-a,a]);
 axis manual;
 grid on;

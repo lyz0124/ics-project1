@@ -1,10 +1,10 @@
 G = 10e-7;
 
-m = [1 1];
-x = [-1 0 0; 1 0 0];
+n = 3;
+m = [1000 1000 1];
+x = [-1 0 0; 1 0 0; 0 0 0];
 u=sqrt(G/4);
-v = [0 -u 0; 0 u 0];
-n = 2;
+v = [0 -u 0; 0 u 0; 0 0 u];
 
 clockmax = 1000;
 t = 3000;
@@ -21,6 +21,7 @@ grid on;
 
 h1 = plot3(0,0,0, 'ro'); % handle for m1
 h2 = plot3(0,0,0, 'bo'); % handle for m2
+hp = plot3(0,0,0, 'go'); % handle for m3 (planet)
 
 for clock = 1:clockmax
     % pause(0.1);
@@ -38,5 +39,6 @@ for clock = 1:clockmax
 
     set(h1, 'XData', x(1,1), 'YData', x(1,2), 'ZData', x(1,3));
     set(h2, 'XData', x(2,1), 'YData', x(2,2), 'ZData', x(2,3));
+    set(hp, 'XData', x(3,1), 'YData', x(2,2), 'ZData', x(3,3));
     drawnow;
 end

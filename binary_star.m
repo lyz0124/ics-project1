@@ -1,22 +1,23 @@
-G = 10e-7;
+G = 6.6743e-11; % m^3*kg^-1*s^-2
 
 n = 3;
-m = [1000 1000 1];
-x = [-1 0 0; 1 0 0; 0 0 0];
-u=sqrt(G/4);
-v = [0 -u 0; 0 u 0; 0 0 u];
+m = [1.0e30 1.0e30 0]; % kg
+x = [-1.0e8 0 0; 1.0e8 0 0; 0 0 0]; % meters
+u = 3e5; % m/s
+v = [0 -u 0; 0 u 0; 0 0 0.3*u];
 
-clockmax = 1000;
-t = 3000;
+clockmax = 1e7;
+t = 3e7; % seconds (3e7 = an earth year)
 dt = t/clockmax;
 
 
 plot3(0,0,0);
 hold on;
 axis equal;
-border = 3;
+border = 3e8;
 axis([-border,border,-border,border,-border,border]);
 axis manual;
+view(2);
 grid on;
 
 h1 = plot3(0,0,0, 'ro'); % handle for m1
@@ -24,7 +25,7 @@ h2 = plot3(0,0,0, 'bo'); % handle for m2
 hp = plot3(0,0,0, 'go'); % handle for m3 (planet)
 
 for clock = 1:clockmax
-    % pause(0.1);
+    % pause(0.5);
     for i=1:(n-1)
         for j=(i+1):n
             r = norm(x(i,:) - x(j,:));

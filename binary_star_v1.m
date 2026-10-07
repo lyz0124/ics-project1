@@ -1,0 +1,60 @@
+G = 6.6743e-11; % m^3*kg^-1*s^-2
+
+config_index = 2; % 选择配置
+[m, x, v] = config(config_index); % 从 config.m 按索引调用
+n = 3;
+
+t = 1e3; % seconds (3e7 = an earth year)
+dt = 1;
+clockmax = t/dt;
+assert(clockmax < 3000);
+
+
+plot3(0,0,0);
+hold on;
+axis equal;
+border = 1e8;
+axis([-border,border,-border,border,-border,border]);
+axis manual;
+% view(2);
+grid on;
+
+h1 = plot3(0,0,0, 'ro'); % handle for m1
+h2 = plot3(0,0,0, 'bo'); % handle for m2
+hp = plot3(0,0,0, 'go'); % handle for m3 (planet)
+
+h1t = plot3(0,0,0, 'r-'); % trail for m1
+h2t = plot3(0,0,0, 'b-'); % trail for m2
+hpt = plot3(0,0,0, 'g-'); % trail for m3 (planet)
+
+tsave = zeros(clockmax,1); % time history
+xsave = zeros(clockmax,n,3); % position history
+vsave = zeros(clockmax,n,3); % position history
+
+for clock = 1:clockmax
+    % pause(0.5);
+    for i=1:(n-1)
+        for j=(i+1):n
+            r = norm(x(i,:) - x(j,:));
+            v(i,:) = v(i,:) + G*m(j)/r^3 *dt* (x(j,:) - x(i,:));
+            v(j,:) = v(j,:) + G*m(i)/r^3 *dt* (x(i,:) - x(j,:));
+        end
+    end
+
+    for i=1:n
+        x(i,:) = x(i,:) + dt * v(i,:);
+    end
+
+    tsave(clock) = clock*dt; % record time
+    xsave(clock,:,:) = x; % record positions
+    vsave(clock,:,:) = v; % record positions
+
+    set(h1, 'XData', x(1,1), 'YData', x(1,2), 'ZData', x(1,3));
+    set(h2, 'XData', x(2,1), 'YData', x(2,2), 'ZData', x(2,3));
+    set(hp, 'XData', x(3,1), 'YData', x(3,2), 'ZData', x(3,3));
+
+    set(h1t, 'XData', xsave(1:clock,1,1), 'YData', xsave(1:clock,1,2), 'ZData', xsave(1:clock,1,3));
+    set(h2t, 'XData', xsave(1:clock,2,1), 'YData', xsave(1:clock,2,2), 'ZData', xsave(1:clock,2,3));
+    set(hpt, 'XData', xsave(1:clock,3,1), 'YData', xsave(1:clock,3,2), 'ZData', xsave(1:clock,3,3));
+    drawnow;
+end

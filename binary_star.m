@@ -1,10 +1,8 @@
 G = 6.6743e-11; % m^3*kg^-1*s^-2
 
+config_index = 1; % 选择配置
+[m, x, v] = config(config_index); % 从 config.m 按索引调用
 n = 3;
-m = [1.0e30 1.0e30 0]; % kg
-x = [-1.0e8 0 0; 1.0e8 0 0; 0 0 0]; % meters
-u = 3e5; % m/s
-v = [0 -u 0; 0 u 0; 0 0 0.3*u];
 
 clockmax = 1e7;
 t = 3e7; % seconds (3e7 = an earth year)

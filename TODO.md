@@ -1,8 +1,8 @@
 ## Preparation
 
 - [x] Design orbits with a,b,m1,m2
-- [ ] Figure out period T
-- [ ] Solve case 1 and 2
+- [x] Figure out period T
+- [x] Solve case 1 and 2
 
 ## Simulations
 

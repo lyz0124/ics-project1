@@ -1,8 +1,9 @@
 #set document(title: "A Planet in a Binary Star System", author: ("Yizhou Lu", "Ruimeng Yang"))
-#set page(paper: "us-letter", margin: (x: 1in, y: 0.85in))
+#set page(paper: "a4", margin: (x: 1in, y: 0.85in), numbering: "1")
 #set text(font: "New Computer Modern", size: 11pt)
 #set par(justify: true, leading: 0.7em)
 #set heading(numbering: "1.")
+#set math.equation(numbering: "(1)")
 
 #align(center)[
   #text(size: 20pt, weight: "bold")[A Planet in a Binary Star System]
@@ -16,9 +17,13 @@
 
 = Introduction
 
-A binary star system consists of two stars that orbit their common center of mass. A planet that orbits both stars is called a circumbinary planet. Its motion is far more intricate than that of a planet around a single star, because the planet feels the gravitational pull of two stars whose positions change with time. This makes such systems an interesting setting for studying orbital dynamics and for testing numerical methods.
+A binary star system consists of two stars that orbit their common center of mass. We study a planet in this system. Its motion is far more intricate than that of a planet around a single star, because the planet feels the gravitational pull of two stars whose positions change with time. This makes such systems an interesting setting for studying orbital dynamics and for testing numerical methods.
 
-In this project we simulate the motion of a planet in a binary star system and investigate how the planet's trajectory depends on the configuration of the system. The study is divided into two parts, summarized below.
+// In a binary star system, two stars rotate around the center of mass, due to the gravitational force between two stars. In this two-body system, the orbits are always circular or elliptical. 
+
+In this project we simulate the motion of a planet in a binary star system and investigate how the planet's trajectory depends on the configuration of the system. A planet usually has far less mass than the stars, so the gravitational force from the planet is small enough that the orbits of binary stars are hardly affected by the planet, keeping elliptical. On the other hand, the orbit of the planet could be complex, due to the two gravitational forces of roughly the same order both affecting the planet.
+
+The study is divided into two parts, summarized below.
 
 - 2D case
   - The orbits of the binary stars
@@ -28,15 +33,19 @@ In this project we simulate the motion of a planet in a binary star system and i
   - Oscillation in the $z$-axis
   - The stability of the oscillation
 
-The bullet points under the 2D case list the hyperparameters that we tune; their choice determines the binary-star orbit, the sense in which the planet travels, and how tightly the planet is bound. In the 3D case we ask whether the planet's vertical motion remains bounded, or whether it grows without limit and the planet is eventually ejected.
+In the 2D case, all three bodies are fixed on the x-y plane, by setting their initial velocities and positions all with 0 z-component, they are guaranteed to stay on the plane, since the gravitational forces also stay on the x-y plane. The bullet points under the 2D case list the hyperparameters that we tune; their choice determines the binary-star orbit, the sense in which the planet travels, and how tightly the planet is bound. 
 
-= Methodology: Binary Star
+In the 3D case, we place the planet in the center of mass of the binary stars, and study its motion along the z axis, with the binary stars still fixed to the x-y plane. We expect to see an oscillation with specific initial conditions, and study the stability of it afterwards.
 
-== Naive cases
+= Equations
+
+== Binary star orbits
 
 Two simple cases are considered:
 1. Circular orbits with equal mass.
 2. Circular orbits with unequal mass.
+
+Then, the more general form of elliptical orbits with unequal masses are discussed.
 
 === Circular orbits with equal mass
 
@@ -61,8 +70,8 @@ $
 The orbital speeds and angular velocity are
 
 $
-  v_1 = sqrt((G m_2 r_1))/(r_1+r_2), quad
-  v_2 = sqrt((G m_1 r_2))/(r_1+r_2)
+  v_1 = sqrt(G m_2 r_1)/(r_1+r_2), quad
+  v_2 = sqrt(G m_1 r_2)/(r_1+r_2)
 $
 
 $
@@ -70,20 +79,19 @@ $
   T = (2 pi)/omega.
 $
 
-== Designing the orbit
+=== Designing the general orbits
 
 Given semiaxes $a,b$ and masses $m_1,m_2$, determine the speeds at the two ends of the orbit. The derivation below uses energy conservation, the center-of-mass condition, and conservation of angular momentum. The relative position and velocity vectors $X=X_1-X_2$ and $U=U_1-U_2$ are not used here.
 
-At the two ends of the orbit, let the separations be $a$ and $b$, and denote the corresponding speeds by $v_{1a},v_{2a},v_{1b},v_{2b}$.
+At the two ends of the orbit, let the separations be $a$ and $b$, and denote the corresponding speeds by $v_(1a), v_(2a),v_(1b),v_(2b)$.
 
-Conservation of energy:
+By the conservation of energy (including kinetic energy and gravitational potential energy) we have:
 
 $
   1/2 m_1 v_(1a)^2 + 1/2 m_2 v_(2a)^2 - G (m_1 m_2)/a
   =
   1/2 m_1 v_(1b)^2 + 1/2 m_2 v_(2b)^2 - G (m_1 m_2)/b
-  (1)
-$
+$ <energy>
 
 The center of mass and center-of-mass velocity are
 
@@ -92,25 +100,24 @@ $
   V_"cm" = (m_1 V_1 + m_2 V_2)/(m_1+m_2).
 $
 
-Choosing the center-of-mass frame gives
+Since there is no external force on the binary star system (ignoring the planet for the time being), the binary star system can be seen as a inertial frame of reference. Therefore, we can always set its velocity and position to zero. Thus we have:
 
 $
   X_"cm" = 0 => X_1:X_2 = m_2:m_1,
   quad V_"cm" = 0 => v_1:v_2 = m_2:m_1.
 $
 
-Conservation of angular momentum:
+Similarly, there is no external torgue on the system. Then by the conservation of angular momentum:
 
 $
   m_1 v_(1a) X_(1a) + m_2 v_(2a) X_(2a)
   =
   m_1 v_(1b) X_(1b) + m_2 v_(2b) X_(2b)
-  (2)
-$
+$ <amomentum>
 
-where $X_{1a}+X_{2a}=a$ and $X_{1b}+X_{2b}=b$.
+where $X_(1a)+X_(2a)=a$ and $X_(1b)+X_(2b)=b$.
 
-Applying the mass-ratio relation to equation (2),
+Applying the mass-ratio relation to @amomentum,
 
 $
   (X_1)/(X_2) = (v_1)/(v_2) = m_2/m_1
@@ -120,14 +127,14 @@ $
   a(v_(1a)+v_(2a)) = b(v_(1b)+v_(2b)).
 $
 
-Let
+By the ratios, let
 
 $
   v_(1a)=m_2 b u, quad v_(1b)=m_2 a u,
   quad v_(2a)=m_1 b u, quad v_(2b)=m_1 a u.
 $
 
-Substitution into equation (1) gives
+Substitution into @energy gives
 
 $
   u^2 (m_1+m_2) b^2 - u^2 (m_1+m_2) a^2
@@ -140,7 +147,7 @@ $
   u = sqrt((2G)/((m_1+m_2) a b (a+b))).
 $
 
-The resulting speeds are
+Plug $u$ back and we have the resulting speeds:
 
 $
   v_(1a) = sqrt(2G (m_2^2)/(m_1+m_2) b^2/(a b (a+b))),
@@ -152,7 +159,7 @@ The corresponding expressions at the other end follow by exchanging $a$ and $b$.
 
 The results were checked against equations (108), (110), and (112) in the lecture notes and found to be consistent.
 
-== Calculating the period
+=== Calculating the period
 
 Observe the orbit from the point of view of $m_1$. The corresponding semiaxes are
 
@@ -161,14 +168,19 @@ $
   b' = (m_2)/(m_1+m_2) b.
 $
 
-By checking online, the center of the mass of the binary star is the focus of both elliptical orbits.
+It is known that the center of the mass of the binary star is the focus of both elliptical orbits [1].
 Therefore, assuming Kepler's laws apply to each of the stars, the period could be found. 
-The results are consistent with the lecture notes, which took a more rigorous approach by transforming the binary star to the single-mass equivalent problem.
 
 The area of the ellipse is
 
 $
   A' = pi sqrt(a'b') ((a+b)/2).
+$
+
+Considering the area swept in $d t$ as a triangle, the areal velocity should be
+
+$
+  (d A')/(d t) = 1/2 v_(1 a)a'
 $
 
 Using the areal velocity, the period is
@@ -178,7 +190,45 @@ $
     = pi/sqrt(2G) (a+b)^(3/2)/(m_1+m_2)^(1/2).
 $
 
-The period is useful for setting the total simulation time $t$, and thus setting $d t$ and `clockmax`. This expression was inferred by comparison with the period for a body orbiting a central mass; it was assumed to be correct.
+The period is useful for setting the total simulation time $t$, and thus setting $d t$ and `clockmax`. 
+The results turned out to be consistent with the lecture notes, which took a more rigorous approach by transforming the binary star to the single-mass equivalent problem.
+
+== Three bodies: the planet
+
+
+
+= Numerical Methods
+
+We evolve the three bodies on a discrete time grid. For each body $i$,
+
+$
+  X_i (t + d t) = X_i (t) + V_i (t) d t,
+$
+
+$
+  V_i (t + d t) = V_i (t) + A_i (t) d t,
+$
+
+repeated $3000$ times.
+
+The simulation (`binary_star_v1.m`) integrates the three-body problem directly in SI units. We store the positions and velocities in state arrays $bold(x)$ and $bold(v)$ and update them every step by Newtonian gravity.
+
+*Force evaluation.* Each step we sum the pairwise gravitational accelerations over all body pairs $(i,j)$:
+
+$
+  bold(a)_i = sum_(j != i) G m_j (bold(x)_j - bold(x)_i)/abs(bold(x)_j - bold(x)_i)^3.
+$
+
+Both partners are updated with the reaction, so the total momentum is conserved exactly.
+
+*Time integration.* We use explicit Euler with a kick-then-drift (symplectic) order,
+
+$
+  bold(v)_i arrow.r.long bold(v)_i + bold(a)_i d t, quad
+  bold(x)_i arrow.r.long bold(x)_i + bold(v)_i d t,
+$
+
+with a fixed step $d t = T\/1000$ and $3000$ steps (three full periods), where $T$ is set from the period formulas above. The reference scales ($G$, $m_m$, $x_x$) keep the numbers well conditioned. Positions and velocities are appended to history arrays $t s a v e$, $x s a v e$, $v s a v e$ for plotting and trails.
 
 = Results: 2D
 
@@ -290,3 +340,7 @@ T = 2*pi * sqrt((a+b)^3) / sqrt(2*G*(m1+m2));
 1. More elliptical orbits.
 2. Adjust the planet's initial velocity (direction and magnitude).
 3. Try to find more patterns.
+
+= Reference
+
+[1] Lecture 13: Binary Star Systems, Masses of Stars (https://sites.ualberta.ca/~pogosyan/teaching/ASTRO_122/lect13/lecture13.html)

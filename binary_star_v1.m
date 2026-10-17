@@ -99,14 +99,14 @@ function generate_2d_general(mRatio, abRatio, rpFactor, revDirection)
     m2 = mm * 2 * 1 / (mRatio + 1);
     a = xx * 2 * abRatio / (abRatio + 1);
     b = xx * 2 * 1 / (abRatio + 1);
-    r1a = a * m2 / (m1 + m2);
-    r2a = a * m1 / (m1 + m2);
+    x1a = a * m2 / (m1 + m2);
+    x2a = a * m1 / (m1 + m2);
     v1a = sqrt(2*G)*m2*b/sqrt((m1+m2)*a*b*(a+b));
     v2a = sqrt(2*G)*m1*b/sqrt((m1+m2)*a*b*(a+b));
-    vpa = sqrt(G*(m1+m2)/r1a);
+    vpa = sqrt(G*(m1+m2)/x1a);
 
     m = [m1 m2 mp];
-    x = [r1a 0 0; -r2a 0 0; r1a 0 0];
+    x = [x1a 0 0; -x2a 0 0; x1a 0 0];
     v = [0 v1a 0; 0 -v2a 0; 0 vpa 0];
     T = pi * sqrt((a+b)^3) / sqrt(2*G*(m1+m2));  % drop the leading 2
 

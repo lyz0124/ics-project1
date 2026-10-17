@@ -125,8 +125,9 @@ function generate_2d_general(mRatio, abRatio, rpFactor, revDirection, vplanet, n
 end
 
 % vp: L122 type
+% 0.3 0.6 0.9 1 1.2 1.5
 for i = [1]
-    generate_2d_general(1, 1, 2, 1, i*5.7768e+05, 8)
+    generate_2d_general(1, 1, 2, 1, i*5.7768e+05, 2)
 end
 
 % distance: B221 type
@@ -155,9 +156,9 @@ function binary_star(m, x, v, T, name, dim, nT)
     plot3(0,0,0);
     hold on;
     axis equal;
-    % border = 3*xx;
-    % axis([-border,border,-border,border,-border,border]);
-    % axis manual;
+    border = 3*xx;
+    axis([-border,border,-border,border,-border,border]);
+    axis manual;
     view(dim);
     grid on;
 
@@ -172,6 +173,14 @@ function binary_star(m, x, v, T, name, dim, nT)
     tsave = zeros(clockmax,1); % time history
     xsave = zeros(clockmax,n,3); % position history
     vsave = zeros(clockmax,n,3); % position history
+
+    % initial total momentum of the system, P = sum(m_i * v_i)
+    P0 = zeros(1,3);
+    for i = 1:n
+        P0 = P0 + m(i) * v(i,:);
+    end
+    P0mag = norm(P0);
+    Pwarned = false; % only report the first (and worst) deviation
 
     for clock = 1:clockmax
         % pause(0.5);
@@ -191,6 +200,18 @@ function binary_star(m, x, v, T, name, dim, nT)
         xsave(clock,:,:) = x; % record positions
         vsave(clock,:,:) = v; % record positions
 
+        % current total momentum
+        P = zeros(1,3);
+        for i = 1:n
+            P = P + m(i) * v(i,:);
+        end
+        if P0mag > 0 && norm(P - P0) > 0.1 * P0mag && ~Pwarned
+            warning("Momentum of " + name + " deviated by more than 10% " + ...
+                "at t = " + string(tsave(clock)) + " (|P - P0|/|P0| = " + ...
+                string(norm(P - P0)/P0mag) + ").");
+            Pwarned = true;
+        end
+
         set(h1, 'XData', x(1,1), 'YData', x(1,2), 'ZData', x(1,3));
         set(h2, 'XData', x(2,1), 'YData', x(2,2), 'ZData', x(2,3));
         set(hp, 'XData', x(3,1), 'YData', x(3,2), 'ZData', x(3,3));
@@ -198,11 +219,25 @@ function binary_star(m, x, v, T, name, dim, nT)
         set(h1t, 'XData', xsave(1:clock,1,1), 'YData', xsave(1:clock,1,2), 'ZData', xsave(1:clock,1,3));
         set(h2t, 'XData', xsave(1:clock,2,1), 'YData', xsave(1:clock,2,2), 'ZData', xsave(1:clock,2,3));
         set(hpt, 'XData', xsave(1:clock,3,1), 'YData', xsave(1:clock,3,2), 'ZData', xsave(1:clock,3,3));
-        % drawnow;
+        drawnow;
     end
 
     title(name);
+
+    % distance between the planet (m3) and each star over time
+    d1 = squeeze(vecnorm(xsave(:,3,:) - xsave(:,1,:), 2, 3)); % |x3 - x1|
+    d2 = squeeze(vecnorm(xsave(:,3,:) - xsave(:,2,:), 2, 3)); % |x3 - x2|
+
+    figure(2);
+    clf;
+    plot(tsave/T, d1/xx, 'r-', tsave/T, d2/xx, 'g-');
+    grid on;
+    xlabel('t / T');
+    ylabel('distance [10^8 m]');
+    legend('planet - m1', 'planet - m2');
+    title("Planet distances: " + name);
+
     % saveas(gcf, "figures/v1/" + name + ".png");
-    exportgraphics(gcf, "figures/v1/" + name + ".png", "Resolution", 300);
+    % exportgraphics(gcf, "figures/v1/" + name + ".png", "Resolution", 300);
 
 end

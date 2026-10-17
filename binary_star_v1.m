@@ -1,4 +1,4 @@
-global G n mm mp xx;
+% global G n mm mp xx;
 
 G = 6.6743e-11; % m^3*kg^-1*s^-2
 n = 3;
@@ -79,14 +79,51 @@ function generate_2d(ii, jj, kk)
     binary_star(m, x, v, T, name, 2); % Finally call the function
 end 
 
-for ii = [1 2 3]
-    for jj = [1 2] 
-        for kk = [1 2 3]
-            generate_2d(ii, jj, kk);
-        end
+% for ii = [1 2 3]
+%     for jj = [1 2] 
+%         for kk = [1 2 3]
+%             generate_2d(ii, jj, kk);
+%         end
+%     end
+% end
+
+%% 2D Case refined
+
+function generate_2d_general(mRatio, abRatio, rpFactor, revDirection)
+    global G mm mp xx;
+    name = "3_" + string(mRatio) + "_" + string(abRatio) + "_" ...
+        + string(rpFactor) + "_" + string(revDirection);
+
+    % elliptical orbit, unequal mass (ii = 3 in generate_2d)
+    m1 = mm * 2 * mRatio / (mRatio + 1);
+    m2 = mm * 2 * 1 / (mRatio + 1);
+    a = xx * 2 * abRatio / (abRatio + 1);
+    b = xx * 2 * 1 / (abRatio + 1);
+    r1a = a * m2 / (m1 + m2);
+    r2a = a * m1 / (m1 + m2);
+    v1a = sqrt(2*G)*m2*b/sqrt((m1+m2)*a*b*(a+b));
+    v2a = sqrt(2*G)*m1*b/sqrt((m1+m2)*a*b*(a+b));
+    vpa = sqrt(G*(m1+m2)/r1a);
+
+    m = [m1 m2 mp];
+    x = [r1a 0 0; -r2a 0 0; r1a 0 0];
+    v = [0 v1a 0; 0 -v2a 0; 0 vpa 0];
+    T = pi * sqrt((a+b)^3) / sqrt(2*G*(m1+m2));  % drop the leading 2
+
+    if revDirection
+        v(3,:) = v(3,:) * (-1); % reverse direction
     end
+
+    x(3,:) = x(3,:) * rpFactor;
+    v(3,:) = v(3,:) / sqrt(rpFactor);
+
+    binary_star(m, x, v, T, name, 2); % Finally call the function
 end
 
+%% 3D Case
+
+
+%% The real simulation function (given initial conditions)
 
 function binary_star(m, x, v, T, name, dim)
     global G n xx; % function workspace is separate from the script's, so re-declare

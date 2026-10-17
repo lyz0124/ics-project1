@@ -1,4 +1,4 @@
-% global G n mm mp xx;
+global G n mm mp xx;
 
 G = 6.6743e-11; % m^3*kg^-1*s^-2
 n = 3;
@@ -8,7 +8,7 @@ mp = 1e24; % mass of planet, kg
 xx = 1e8; % Reference of distance, m
 
 %% 2D Case
-function generate_2d(ii, jj, kk)
+function generate_2d_batch(ii, jj, kk)
     global G mm mp xx;
     name = string(ii) + string(jj) + string(kk);
     switch ii
@@ -82,17 +82,17 @@ end
 % for ii = [1 2 3]
 %     for jj = [1 2] 
 %         for kk = [1 2 3]
-%             generate_2d(ii, jj, kk);
+%             generate_2d_batch(ii, jj, kk);
 %         end
 %     end
 % end
 
 %% 2D Case refined
 
-function generate_2d_general(mRatio, abRatio, rpFactor, revDirection)
+function generate_2d_general(mRatio, abRatio, rpFactor, revDirection, vplanet, nT)
     global G mm mp xx;
-    name = "3_" + string(mRatio) + "_" + string(abRatio) + "_" ...
-        + string(rpFactor) + "_" + string(revDirection);
+    name = "m" + string(mRatio) + "-ab" + string(abRatio) + "-rpf" ...
+        + string(rpFactor) + "-rev" + string(revDirection) + "-vp" + string(vplanet);
 
     % elliptical orbit, unequal mass (ii = 3 in generate_2d)
     m1 = mm * 2 * mRatio / (mRatio + 1);
@@ -101,8 +101,8 @@ function generate_2d_general(mRatio, abRatio, rpFactor, revDirection)
     b = xx * 2 * 1 / (abRatio + 1);
     x1a = a * m2 / (m1 + m2);
     x2a = a * m1 / (m1 + m2);
-    v1a = sqrt(2*G)*m2*b/sqrt((m1+m2)*a*b*(a+b));
-    v2a = sqrt(2*G)*m1*b/sqrt((m1+m2)*a*b*(a+b));
+    v1a = sqrt(2*G)*m2*b/sqrt((m1+m2)*a*b*(a+b))
+    v2a = sqrt(2*G)*m1*b/sqrt((m1+m2)*a*b*(a+b))
     vpa = sqrt(G*(m1+m2)/x1a);
 
     m = [m1 m2 mp];
@@ -110,34 +110,54 @@ function generate_2d_general(mRatio, abRatio, rpFactor, revDirection)
     v = [0 v1a 0; 0 -v2a 0; 0 vpa 0];
     T = pi * sqrt((a+b)^3) / sqrt(2*G*(m1+m2));  % drop the leading 2
 
+    x(3,:) = x(3,:) * rpFactor;
+    v(3,:) = v(3,:) / sqrt(rpFactor);
+
+    if (vplanet ~= 0)
+        v(3,2) = vplanet;
+    end
+
     if revDirection
         v(3,:) = v(3,:) * (-1); % reverse direction
     end
 
-    x(3,:) = x(3,:) * rpFactor;
-    v(3,:) = v(3,:) / sqrt(rpFactor);
-
-    binary_star(m, x, v, T, name, 2); % Finally call the function
+    binary_star(m, x, v, T, name, 2, nT); % Finally call the function
 end
+
+% vp: L122 type
+for i = [1]
+    generate_2d_general(1, 1, 2, 1, i*5.7768e+05, 8)
+end
+
+% distance: B221 type
+% for i = [1.9 2]
+%     generate_2d_general(1.5, 1, i, 1, 0, 3)
+% end
+
+% distance
+% for i = [1.2]
+%     generate_2d_general(0.5, 4, i, 1, 0, 1)
+%     generate_2d_general(0.5, 4, i, 0, 0, 1)
+% end
 
 %% 3D Case
 
 
 %% The real simulation function (given initial conditions)
 
-function binary_star(m, x, v, T, name, dim)
+function binary_star(m, x, v, T, name, dim, nT)
     global G n xx; % function workspace is separate from the script's, so re-declare
 
-    clockmax = 3 * 1000;
+    clockmax = nT * 1000;
     dt = T/1000;
 
     clf;              % clear the previous plot so each run starts fresh
     plot3(0,0,0);
     hold on;
     axis equal;
-    border = 5*xx;
-    axis([-border,border,-border,border,-border,border]);
-    axis manual;
+    % border = 3*xx;
+    % axis([-border,border,-border,border,-border,border]);
+    % axis manual;
     view(dim);
     grid on;
 
@@ -182,6 +202,7 @@ function binary_star(m, x, v, T, name, dim)
     end
 
     title(name);
-    saveas(gcf, "figures/v1/" + name + ".png");
+    % saveas(gcf, "figures/v1/" + name + ".png");
+    exportgraphics(gcf, "figures/v1/" + name + ".png", "Resolution", 300);
 
 end

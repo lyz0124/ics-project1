@@ -50,6 +50,7 @@ Then, the more general form of elliptical orbits with unequal masses are discuss
 === Circular orbits with equal mass
 
 For $m_1=m_2=m$, with each star at distance $r$ from the center of mass,
+by balancing the central force with the gravity, we have the velocity
 
 $
   v = sqrt((G m)/(4r))
@@ -67,7 +68,7 @@ $
   r_1/r_2 = m_2/m_1.
 $
 
-The orbital speeds and angular velocity are
+The orbital speeds (similarly obtained by balancing central force with gravity) and angular velocity are
 
 $
   v_1 = sqrt(G m_2 r_1)/(r_1+r_2), quad
@@ -320,18 +321,20 @@ In all following figures of the trails, the red and green lines stand for the bi
 == Batch running
 
 We first run the simulations in batches to find interesting patterns.
+These were the results in the presentation.
 There were actually some bugs for the *initial conditions* in the code for the first version of the code.
 However, the N-body simulation was correct, and the results were interesting, so they are still kept being discussed here.
 
-The first version of code does the following setup:
+The first version of the code used the following configuration:
 
-- Circular orbit, equal mass: $q=1, space k=1$.
-- Circular orbit, unequal mass: $q=1.5, space k=1$.
-- Elliptical orbit, unequal mass: $q=1.5, space k=2.5$.
-
-- The $f$ were $1.3, 2, 5$. 
-- The $v_p$ did not scale with $sqrt(f)$. 
-- The $v_p$ was set to $v_1$ instead of the circlar speed $sqrt(G(m_1+m_2)/r_p)$.
+- Binary-star orbits and masses:
+  - Circular orbit, equal mass: $q=1, space k=1$.
+  - Circular orbit, unequal mass: $q=1.5, space k=1$.
+  - Elliptical orbit, unequal mass: $q=1.5, space k=2.5$.
+- Distance scaling: $f = 1.3, space 2, space 5$.
+- Planet speed
+  - $v_p$ was set to $v_1$ rather than to the speed of a circular orbit, $sqrt(G(m_1+m_2)/r_p)$. 
+  - $v_p$ did not scale with $sqrt(f)$.
 
 = Results (3D cases)
 

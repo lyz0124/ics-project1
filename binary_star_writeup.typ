@@ -83,6 +83,7 @@ $
 === Designing the general orbits
 
 Given semiaxes $a,b$ (where $a$ is the longest distance the two binary stars can reach, and $b$ is the shortest distance similarly) and masses $m_1,m_2$, determine the speeds at the two ends of the orbit.
+#footnote[See the appendix for illustration of the variables.]
 
 Denote the corresponding velocities when the binary stars are at the ends of $a$ and $b$ respectively by $v_(1a), v_(2a),v_(1b),v_(2b)$.
 #footnote[The relative position and velocity vectors $X=X_1-X_2$ and $U=U_1-U_2$ are not used here.]
@@ -320,9 +321,9 @@ There are no external force on the 3-body system, so the total momentum should b
 
 = Results and Discussion (2D cases)
 
-In all following figures of the trails, the red and green lines stand for the binary stars, and the blue lines are the planet.
+In all following figures of the trails in this section, the red and green lines stand for the binary stars, and the blue lines are the planet.
 
-== Batch running in legacy mode
+== Batch running and legacy mode
 
 We first run the simulations in batches to find interesting patterns.
 These were the results in the presentation.
@@ -340,11 +341,15 @@ The first version of the code used the following configuration:
   - $v_p$ was set to $v_1$ rather than to the speed of a circular orbit, $sqrt(G(m_1+m_2)/r_p)$. 
   - $v_p$ did not scale with $sqrt(f)$.
 
+It was also found in batch running (in either legacy mode or normal mode) that setting the planet in the opposite direction of the binary stars has a higher chance of finding an interesting pattern that the planet rotates instead of crashing to a star or escape the binary-star system. 
+
 == Equal mass, circular orbit
 
 This pattern is first found in the legacy mode when $q=1, space k=1, space f=2$ but with $v_p=v_1$, and the planet travelling clockwise (opposite to the binary stars), which is shown in the 6th figure below.
 Then, different initial $v_p$'s are tried by scaling $v_1$ with a factor, as the captions under the graphs indicate. 
-#footnote[The red and green trails of the binary stars overlap.]
+#footnote[The titles embedded in the images follow the pattern: \
+m\<`mRatio`\>-ab\<`abRatio`\>-rpf\<`rpFactor`\>-rev\<`revDirection`\>-vp\<`vplanet`\> \
+Setting `vplanet` to 0 means standard mode, while giving it a speed imitates legacy mode.]
 
 #let L122-images = (
   (file: "m1-ab1-rpf2-rev1-vp173304.png",   caption: $v_p= 0.3v_1$),
@@ -368,7 +373,9 @@ Then, different initial $v_p$'s are tried by scaling $v_1$ with a factor, as the
       #text(size: 8pt, fill: luma(80), item.caption)
     ])
   ), 
-  caption: [Equal mass, circular orbit binary stars with different $v_p/v_1$],
+  caption: [Equal mass, circular orbit binary stars with different $v_p/v_1$ ratios 
+  #footnote[The red and green trails of the binary stars overlap.]
+  ],
   placement: auto
 ) <L122-orbits>
 
@@ -387,7 +394,6 @@ It is worth noticing that the planet is mostly closer to one star when $r_p/r_1$
 ) <L122-distance>
 
 == Unequal mass, circular orbit
-
 
 #let B221-images = (
   (file: "m1.5-ab1-rpf1.3-rev1-vp0.png", caption: $f=1.3$),
@@ -415,20 +421,173 @@ This could be caused by 3 reasons:
 + The inner star has larger mass, so the gravity from that star is larger.
 + The planet start close to the heavier inner star, with the other star on the opposite side of the origin. The long distance to the lighter star yields smaller gravity from that star. 
 
-= Results (3D cases)
+== Unequal mass, elliptical orbits
+
+It could be still possible to find the planet rotating dominated by one star when the binary stars are elliptical. 
+As shown in @elliptical-orbits, setting the planet in the opposite direction of the binary stars is still more likely to let the planet rotate regularly. 
+The binary star parameters are set to $q=1.5, space k=2.5$.
+
+Setting the planet close enough (i.e. setting $f$ to be small enough) helps the planet to rotate around a single star, barely affected by the other star, as indicated in the "$f=1.2$, opposite" case in @elliptical-orbits.
+However, in the simulations, we failed to find a case where the planet switches significantly between two stars regularly. 
+
+#let elliptical-images = (
+  (file: "m1.5-ab2.5-rpf1.2-rev0-vp0.png", caption: $f=1.2$),
+  (file: "m1.5-ab2.5-rpf2-rev0-vp0.png",   caption: $f=2$),
+  (file: "m1.5-ab2.5-rpf3-rev0-vp0.png",   caption: $f=3$),
+  (file: "m1.5-ab2.5-rpf1.2-rev1-vp0.png", caption: [$f=1.2$, opposite]),
+  (file: "m1.5-ab2.5-rpf2-rev1-vp0.png",   caption: [$f=2$, opposite]),
+  (file: "m1.5-ab2.5-rpf3-rev1-vp0.png",   caption: [$f=3$, opposite]),
+)
 
 #figure(
+  grid( columns: (1fr, 1fr, 1fr),
+    gutter: 12pt,
+    align: center + bottom,
+    ..elliptical-images.map(item => [
+      #image("./figures/v1/elliptical/" + item.file, width: 100%)
+      #text(size: 8pt, fill: luma(80), item.caption)
+    ])
+  ),
+  caption: [Orbits of the planet in elliptical binary stars with different $f$.]
+) <elliptical-orbits>
+
+== Distances
+
+To explore how the distance from the planet to the origin matters to the orbit of the planet, we set $f=3, 4, 5, 7$ respectively with the binary stars staying $q=2, k=4$, the planet travelling the opposite direction with the binary stars. 
+We started at $f=3$ to avoid the planet travelling between the stars and eventually crashing. 
+
+#let distance-images = (
+  (file: "m2-ab4-rpf3-rev1-vp0.png", caption: $f=3$),
+  (file: "m2-ab4-rpf4-rev1-vp0.png", caption: $f=4$),
+  (file: "m2-ab4-rpf5-rev1-vp0.png", caption: $f=5$),
+  (file: "m2-ab4-rpf7-rev1-vp0.png", caption: $f=7$),
+)
+
+#figure(
+  grid( columns: (1fr, 1fr, 1fr, 1fr),
+    gutter: 12pt,
+    align: center + bottom,
+    ..distance-images.map(item => [
+      #image("./figures/v1/distance/" + item.file, width: 100%)
+      #text(size: 8pt, fill: luma(80), item.caption)
+    ])
+  ),
+  caption: [Distance from the planet to the binary stars with different $f$.]
+) <distance-plots>
+
+As shown in @distance-plots, as $f$ grows larger, the planet orbit behaves more like a circle. 
+When $f=3$ in this case, the planet get attracted and goes inwards.
+When $f=4$, the planet orbits outside of the binary star orbits, but the planet orbit is not very close to a circle.
+When $f=5,7$, the planet gets closer to a circular orbit with only a small deviation.
+However, there is no specific threshold for the behavior. 
+
+
+= Results and Discussion (3D cases)
+
+In the 3D case, we set the planet intially at the origin for all simulations. We then set the following:
+
+- Case 1 (the base case): $q=1, k=2$. The planet has an initial velocity along the positive $z$-axis, with magnitude $v_(1a)$. 
+- Case 2: Based on case 1, we give the planet an additional initial velocity on the $y$-axis, setting $V_p (0)=(0, 0.01 v_(1a), v_(1a))$.
+- Case 3: Based on case 1, we set $q=1.1$ instead.
+
+#let three-d-images = (
+  (file: "3d-m1-ab2.png",     caption: [Case 1 (the base case)]), 
+  (file: "3d-m1-ab2-per.png", caption: [Case 2]), 
+  (file: "3d-m1.1-ab2.png",   caption: [Case 3]),
+)
+
+#figure(
+  grid( columns: (1fr, 1fr, 1fr),
+    gutter: 12pt,
+    align: center + bottom,
+    ..three-d-images.map(item => [
+      #image("./figures/v1/3d/" + item.file, width: 100%)
+      #text(size: 8pt, fill: luma(80), item.caption)
+    ])
+  ),
   caption: [Three-dimensional simulation results.]
-)[
-  #align(center)[_Insert the 3D simulation plots here._]
-]
+) <3d-plots>
+
+From @3d-plots and viewing them in live animation
+#footnote[I did not export the animations as videos, but they are explained here by words.]
+, we can conclude from each case:
+
+- In case 1, the planet oscillates along the $z$-axis periodically. 
+  The acceleration of the planet depends both on the phase of the binary stars and the $z$ position of the planet itself. 
+  Specifically, the farther the stars are, the smaller the acceleration; the farther the planet is away from the origin, the larger the acceleration.
+  This makes sense as the angles of gravitational forces and the distance of the bodies change.
+- Case 2 indicates that case 1 is not a stable state. 
+  Giving a small pertubation to the horizontal velocity of the planet causes significant difference in its orbit.
+- Case 3 indicates that the oscillation happens only when the binary stars are of equal mass. 
+  Even slightly tuning $q=1.1$ causes the planet to escape in this case. 
+  Crashes or other patterns are also possible, but the osciallation is broken.
+
+= Conclusion
+
+We modelled a planet in a binary star system as a three-body problem and evolved it
+with the Euler method, using the initial conditions derived from energy, momentum, and
+angular-momentum conservation, see @energy and @velocity. Momentum conservation served as the
+validation criterion of the code.
+
+In the 2D cases, the planet's trajectory turned out to be strongly sensitive to all of the
+tuned parameters:
+
+- Around a circular, equal-mass binary, only a narrow band of initial speeds near $v_p approx v_1$
+  gives a regular orbit (@L122-orbits); too large a speed lets the planet escape, while too small
+  a speed produces chaotic trails.
+- For unequal masses (@B221-orbits) and for elliptical orbits (@elliptical-orbits), the planet
+  can be captured by the heavier inner star when its initial distance is small enough, since it
+  starts close to that star with a small speed.
+- Sending the planet in the direction opposite to the binary stars is consistently more likely to
+  produce a regular rotating orbit, and a larger $f$ makes the planet's orbit increasingly close to
+  a circle (@distance-plots), as expected from treating the binary as a single mass.
+
+In the 3D cases, a planet released from the center of mass with a velocity along $z$ oscillates
+along the $z$-axis when the binary stars are equal in mass and on a circular orbit (@3d-plots).
+The oscillation is, however, not stable: a small horizontal perturbation (case 2) drastically
+changes the orbit, and even a $10%$ mass difference (case 3) destroys the oscillation, ending in an
+escape or a crash. Thus the observed oscillation is a delicate, symmetric configuration rather than
+a robust feature of the system.
 
 = Future Discussion
 
-1. More elliptical orbits.
-2. Adjust the planet's initial velocity (direction and magnitude).
-3. Try to find more patterns.
+The three-body system is generally not solvable[2]. 
+Though this project restricts the problem by setting a solved binary-star system with a much smaller mass (the planet), it turns out that the behavior of the planet is still complex to study. 
+This project could be extended in the following ways:
+
+For the 2D case:
+- The initial velocity of the planet was always set along the $y$-axis. However, more directions could be tested.
+- The positions of the planet and the binary stars always start on the $x$-axis. 
+  There are more possible phases for the planet according to the binary stars. 
+  What's more, $q$ was set always larger than 1, letting the planet to start on the side with heavier star. 
+  It could be different if the planet is initally closer to the lighter star.
+- The elliptical-orbit binary stars are highly tunable. 
+  It could be possible to find more patterns in this case. 
+  It remains unknown if there are possibilities that the orbit of the planet transforms between two or more patterns (for example, rotating around one star for some time and around another star for some time).
+
+For the 3D case:
+- Instead of studying the oscillation starting from the origin, the stability of the patterns seen in 2D cases given a $z$-axis component in the planet's initial velocity could also be discussed.
 
 = Reference
 
-[1] Lecture 13: Binary Star Systems, Masses of Stars (https://sites.ualberta.ca/~pogosyan/teaching/ASTRO_122/lect13/lecture13.html)
+[1] University of Alberta. _Lecture 13: Binary Star Systems, Masses of Stars._ https://sites.ualberta.ca/~pogosyan/teaching/ASTRO_122/lect13/lecture13.html\
+[2] EBSCO. _Three-Body Problem._ https://www.ebsco.com/research-starters/history/three-body-problem/
+
+#pagebreak()
+// Appendix: restart heading numbering and use letters instead of digits.
+#counter(heading).update(0)
+#set heading(numbering: (..nums) => {
+  let nums = nums.pos()
+  let letters = nums.map(n => numbering("A", n))
+  letters.join(".") + "."
+})
+
+= Appendix
+
+The handwritten notes below record the derivation of the initial conditions and the
+simulation plan described in the _Equations_ and _Numerical Methods_ sections.
+
+#figure(
+  image("Mynotes.jpg", width: 100%),
+  caption: [Handwritten notes taken while deriving the equations and planning the simulations.]
+) <appendix-notes>

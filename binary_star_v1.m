@@ -126,9 +126,9 @@ end
 
 % vp: L122 type
 % 0.3 0.6 0.9 1 1.2 1.5
-for i = [1]
-    generate_2d_general(1, 1, 2, 1, i*5.7768e+05, 2)
-end
+% for i = [1]
+%     generate_2d_general(1, 1, 2, 1, i*5.7768e+05, 2)
+% end
 
 % distance: B221 type
 % for i = [1.9 2]
@@ -136,13 +136,48 @@ end
 % end
 
 % distance
-% for i = [1.2]
-%     generate_2d_general(0.5, 4, i, 1, 0, 1)
-%     generate_2d_general(0.5, 4, i, 0, 0, 1)
+% for i = [1.2 2 3]
+%     generate_2d_general(2, 4, i, 1, 0, 1)
+%     generate_2d_general(2, 4, i, 0, 0, 1)
+% end
+
+% batch refined, elliptical
+% for i = [1.2 2 3]
+%     for j = [0 1]
+%         generate_2d_general(1.5, 2.5, i, j, 0, 1)
+%     end
 % end
 
 %% 3D Case
 
+function generate_3d(mRatio, abRatio, nT)
+    global G mm mp xx;
+    name = "3d-m" + string(mRatio) + "-ab" + string(abRatio);
+
+    % elliptical binary, unequal mass, orbiting in the xy-plane
+    % (same initial conditions as generate_2d_general)
+    m1 = mm * 2 * mRatio / (mRatio + 1);
+    m2 = mm * 2 * 1 / (mRatio + 1);
+    a = xx * 2 * abRatio / (abRatio + 1);
+    b = xx * 2 * 1 / (abRatio + 1);
+    x1a = a * m2 / (m1 + m2);
+    x2a = a * m1 / (m1 + m2);
+    v1a = sqrt(2*G)*m2*b/sqrt((m1+m2)*a*b*(a+b));
+    v2a = sqrt(2*G)*m1*b/sqrt((m1+m2)*a*b*(a+b));
+
+    % TODO: planet initial conditions (row 3 of x and v), set by hand
+    xp = [0 0 0];
+    vp3 = [0 0.0*v1a v1a];
+
+    m = [m1 m2 mp];
+    x = [x1a 0 0; -x2a 0 0; xp];
+    v = [0 v1a 0; 0 -v2a 0; vp3];
+    T = pi * sqrt((a+b)^3) / sqrt(2*G*(m1+m2));  % drop the leading 2
+
+    binary_star(m, x, v, T, name, 3, nT); % Finally call the function
+end
+
+generate_3d(1, 2, 3)
 
 %% The real simulation function (given initial conditions)
 
@@ -156,9 +191,9 @@ function binary_star(m, x, v, T, name, dim, nT)
     plot3(0,0,0);
     hold on;
     axis equal;
-    border = 3*xx;
-    axis([-border,border,-border,border,-border,border]);
-    axis manual;
+    % border = 3*xx;
+    % axis([-border,border,-border,border,-border,border]);
+    % axis manual;
     view(dim);
     grid on;
 
@@ -228,16 +263,16 @@ function binary_star(m, x, v, T, name, dim, nT)
     d1 = squeeze(vecnorm(xsave(:,3,:) - xsave(:,1,:), 2, 3)); % |x3 - x1|
     d2 = squeeze(vecnorm(xsave(:,3,:) - xsave(:,2,:), 2, 3)); % |x3 - x2|
 
-    figure(2);
-    clf;
-    plot(tsave/T, d1/xx, 'r-', tsave/T, d2/xx, 'g-');
-    grid on;
-    xlabel('t / T');
-    ylabel('distance [10^8 m]');
-    legend('planet - m1', 'planet - m2');
-    title("Planet distances: " + name);
+    % figure(2);
+    % clf;
+    % plot(tsave/T, d1/xx, 'r-', tsave/T, d2/xx, 'g-');
+    % grid on;
+    % xlabel('t / T');
+    % ylabel('distance [10^8 m]');
+    % legend('planet - m1', 'planet - m2');
+    % title("Planet distances: " + name);
 
     % saveas(gcf, "figures/v1/" + name + ".png");
-    % exportgraphics(gcf, "figures/v1/" + name + ".png", "Resolution", 300);
+    exportgraphics(gcf, "figures/v1/" + name + ".png", "Resolution", 300);
 
 end
